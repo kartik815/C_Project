@@ -10,7 +10,11 @@ void setup() {
   if (!mpu.testConnection()) {
     Serial.println("MPU6050 connection failed!");
     while (1);
-  }
+  } 
+
+  mpu.setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
+
+  mpu.setFullScaleGyroRange(MPU6050_GYRO_FS_1000);
 
   Serial.println("Calibrating...");
   last_time = micros();
