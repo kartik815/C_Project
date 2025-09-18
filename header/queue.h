@@ -23,6 +23,8 @@ typedef struct Queue {
 	struct Que_data *head;
 	struct Que_data *tail;
 
+	pthread_mutex_t mutex;
+
 	//
 } Queue;
 
@@ -30,4 +32,5 @@ typedef struct Queue {
 Queue* que_init();
 int que_enqueue(Queue *que, int data);
 int que_dequeue(Queue *que);
+void que_destroy(Queue *que);
 #endif

@@ -12,6 +12,10 @@ Queue *que_init() {
   }
   que->head = NULL;
   que->tail = NULL;
+  if (pthread_mutex_init(&que->mutex, NULL) != 0) {
+    free(que);
+    return NULL;
+  }
   return que;
 }
 
@@ -32,6 +36,8 @@ int que_enqueue(Queue *que, int data) {
 
   new_node->data = data;
   new_node->next_node = NULL;
+
+  pthread_mutex_lock(&que->mutex);
   if (!que->head) {
     que->head = new_node;
     que->tail = new_node;
@@ -40,6 +46,8 @@ int que_enqueue(Queue *que, int data) {
 
   que->tail->next_node = new_node;
   que->tail = new_node;
+
+  pthread_mutex_unlock(&que->mutex);
   return 0;
 }
 
@@ -53,6 +61,8 @@ int que_dequeue(Queue *que) {
     return -1;
   }
 
+  pthread_mutex_lock(&que->mutex);
+
   if (que->head == que->tail) {
     int res = que->head->data;
     free(que->head);
@@ -65,9 +75,34 @@ int que_dequeue(Queue *que) {
   struct Que_data *temp = que->head;
 
   que->head = que->head->next_node;
+  pthread_mutex_unlock(&que->mutex);
   free(temp);
 
   temp = NULL;
 
   return res;
+}
+
+/*
+ * Destroying the queue once we are finished it with it.
+ */
+void que_destroy(Queue *que) {
+  if (!que)
+    return;
+
+  pthread_mutex_lock(&que->mutex);
+
+  struct Que_data *current = que->head;
+  while (current) {
+    struct Que_data *next = current->next_node;
+    free(current);
+    current = next;
+  }
+  que->head = NULL;
+  que->tail = NULL;
+
+  pthread_mutex_unlock(&que->mutex);
+  pthread_mutex_destroy(&que->mutex);
+
+  free(que);
 }
