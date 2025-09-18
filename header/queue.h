@@ -11,6 +11,7 @@
 #define QUEUE_H 
 
 #include <stdlib.h>
+#include <pthread.h>
 
 struct Que_data {
 	int data;
@@ -21,6 +22,8 @@ struct Que_data {
 typedef struct Queue {
 	struct Que_data *head;
 	struct Que_data *tail;
+
+	//
 } Queue;
 
 
