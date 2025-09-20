@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdio.h>
 #include "queue.h"
 #include "globals.h"
 #include "executecmd.h"
@@ -10,7 +11,7 @@ void executecmd(int key){
         0,0,0,0,
         0x57,
         0x53,0,0,0,0
-    }
+    };
     if (key < 0 || key >= 12 || keyMap[key] == 0) {
         printf("Invalid key index: %d\n", key);
         return;
@@ -34,10 +35,9 @@ void executecmd(int key){
 
 }
 void* excutecode( void *arg){
-    struct timespec interval;
-    interval.tv_sec = 0;
-    interval.tv_nsec = 1000000; // 1 ms in nanoseconds
-int key=-1
+  
+
+    int key=-1;
     
     while (1) {
         key = que_dequeue(&que);
@@ -45,7 +45,7 @@ int key=-1
             executecmd(key);
         }
         // Sleep for 1 millisecond
-        nanosleep(&interval, NULL);
+        Sleep(1);
     }
 
     return NULL;
