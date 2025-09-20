@@ -1,108 +1,99 @@
 #include "queue.h"
 
 /*
- * This Fuction is used to create a pointer for queue and
- * return the pointer using malloc. its returns Null if
- * malloc couldn't allocate the memory
+ * Initialize queue
  */
 Queue *que_init() {
-  Queue *que = malloc(sizeof(Queue));
-  if (!que) {
-    return NULL;
-  }
-  que->head = NULL;
-  que->tail = NULL;
-  if (pthread_mutex_init(&que->mutex, NULL) != 0) {
-    free(que);
-    return NULL;
-  }
-  return que;
-}
-
-/*
- * This function create new node with the given and
- * adds it to the tail of queue.
- * Returns -1 if error occurs and returns 0 if
- * function is executed successfully.
- */
-int que_enqueue(Queue *que, int data) {
-  if (!que)
-    return -1;
-
-  struct Que_data *new_node = malloc(sizeof(struct Que_data));
-  if (!new_node) {
-    return -1;
-  }
-
-  new_node->data = data;
-  new_node->next_node = NULL;
-
-  pthread_mutex_lock(&que->mutex);
-  if (!que->head) {
-    que->head = new_node;
-    que->tail = new_node;
-    return 0;
-  }
-
-  que->tail->next_node = new_node;
-  que->tail = new_node;
-
-  pthread_mutex_unlock(&que->mutex);
-  return 0;
-}
-
-/*
- * This function pop elements from the queue and
- * returns the data. If error occurs, the function
- * returns -1.
- */
-int que_dequeue(Queue *que) {
-  if (!que || !que->head) {
-    return -1;
-  }
-
-  pthread_mutex_lock(&que->mutex);
-
-  if (que->head == que->tail) {
-    int res = que->head->data;
-    free(que->head);
+    Queue *que = malloc(sizeof(Queue));
+    if (!que) {
+        return NULL;
+    }
     que->head = NULL;
     que->tail = NULL;
-    return res;
-  }
 
-  int res = que->head->data;
-  struct Que_data *temp = que->head;
-
-  que->head = que->head->next_node;
-  pthread_mutex_unlock(&que->mutex);
-  free(temp);
-
-  temp = NULL;
-
-  return res;
+    InitializeCriticalSection(&que->mutex); // Windows mutex init
+    return que;
 }
 
 /*
- * Destroying the queue once we are finished it with it.
+ * Enqueue (add element to tail)
+ */
+int que_enqueue(Queue *que, int data) {
+    if (!que)
+        return -1;
+
+    struct Que_data *new_node = malloc(sizeof(struct Que_data));
+    if (!new_node) {
+        return -1;
+    }
+
+    new_node->data = data;
+    new_node->next_node = NULL;
+
+    EnterCriticalSection(&que->mutex);
+    if (!que->head) {
+        que->head = new_node;
+        que->tail = new_node;
+        LeaveCriticalSection(&que->mutex);
+        return 0;
+    }
+
+    que->tail->next_node = new_node;
+    que->tail = new_node;
+
+    LeaveCriticalSection(&que->mutex);
+    return 0;
+}
+
+/*
+ * Dequeue (remove element from head)
+ */
+int que_dequeue(Queue *que) {
+    if (!que || !que->head) {
+        return -1;
+    }
+
+    EnterCriticalSection(&que->mutex);
+
+    if (que->head == que->tail) {
+        int res = que->head->data;
+        free(que->head);
+        que->head = NULL;
+        que->tail = NULL;
+        LeaveCriticalSection(&que->mutex);
+        return res;
+    }
+
+    int res = que->head->data;
+    struct Que_data *temp = que->head;
+
+    que->head = que->head->next_node;
+    LeaveCriticalSection(&que->mutex);
+    free(temp);
+
+    return res;
+}
+
+/*
+ * Destroy the queue
  */
 void que_destroy(Queue *que) {
-  if (!que)
-    return;
+    if (!que)
+        return;
 
-  pthread_mutex_lock(&que->mutex);
+    EnterCriticalSection(&que->mutex);
 
-  struct Que_data *current = que->head;
-  while (current) {
-    struct Que_data *next = current->next_node;
-    free(current);
-    current = next;
-  }
-  que->head = NULL;
-  que->tail = NULL;
+    struct Que_data *current = que->head;
+    while (current) {
+        struct Que_data *next = current->next_node;
+        free(current);
+        current = next;
+    }
+    que->head = NULL;
+    que->tail = NULL;
 
-  pthread_mutex_unlock(&que->mutex);
-  pthread_mutex_destroy(&que->mutex);
+    LeaveCriticalSection(&que->mutex);
+    DeleteCriticalSection(&que->mutex);  // Free system resources
 
-  free(que);
+    free(que);
 }

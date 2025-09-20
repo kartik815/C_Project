@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: gcc.exe build project",
+            "command": "C:/MinGW/bin/gcc.exe",
+            "args": [
+                "-g",
+                "-I${workspaceFolder}/header",
+                "${workspaceFolder}/src/main.c",
+                "${workspaceFolder}/src/queue.c",
+                "-o",
+                "${workspaceFolder}/program.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": ["$gcc"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
