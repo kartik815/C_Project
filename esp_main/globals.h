@@ -6,7 +6,7 @@
 #include <WiFiUdp.h>
 #include <stdint.h>
 
-// Declare global variables (not define them here)
+// Declaring global variables (not define them here)
 extern MPU6050 mpu;
 extern unsigned long now, last_time;
 extern float roll_angle, pitch_angle;
