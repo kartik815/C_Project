@@ -78,6 +78,7 @@ void update_angle_values(){
     pitch_angle = FILTER_COEFFICIENT * pitch_angle + (1-FILTER_COEFFICIENT)*acc_pitch;    
 }
 
+// Converting data from sensor and buttons to a unique code.
 struct Data_packet get_sensor_value(){
     struct Data_packet data = {0,0};
 
