@@ -1,6 +1,6 @@
 #include "globals.h"
 
-// Define the global variables here (exactly once)
+// Defining/Initializing them the global variables here.
 MPU6050 mpu;
 unsigned long now = 0, last_time = 0;
 float roll_angle = 0.0;
@@ -14,7 +14,7 @@ const char* ssid = "Ram_hotspot";
 const char* password = "aaaaaaaa";
 
 // Destination laptop details
-const char* laptopIP = "10.45.87.26"; // replace with your laptop IP
+const char* laptopIP = "10.45.87.26";
 const int laptopPort = 8081;      
 
 
